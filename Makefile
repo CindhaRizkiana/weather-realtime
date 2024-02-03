@@ -72,7 +72,10 @@ cassandra-create-keyspace:
 	@echo 'Creating Cassandra Keyspace ...'
 	@echo '__________________________________________________________'
 	@docker-compose -f ./docker/docker-compose-cassandra.yml --env-file .env up -d
+	@echo 'Waiting for Cassandra to initialize...'
+	@sleep 30  # Adjust the sleep duration as needed
 	@echo '==========================================================='
+
 
 spark-produce:
 	@echo '__________________________________________________________'

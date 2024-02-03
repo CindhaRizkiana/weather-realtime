@@ -23,20 +23,24 @@ kafka_topic = os.getenv("KAFKA_TOPIC_NAME")
 CASSANDRA_HOST = os.getenv("CASSANDRA_HOST")
 CASSANDRA_PORT = os.getenv("CASSANDRA_PORT")
 CASSANDRA_KEYSPACE = os.getenv("CASSANDRA_KEYSPACE")
-CASSANDRA_USERNAME= os.getenv("CASSANDRA_USER")
-CASSANDRA_PASSWORD= os.getenv("CASSANDRA_PASSWORD")
+CASSANDRA_USERNAME = os.getenv("CASSANDRA_USER")
+CASSANDRA_PASSWORD = os.getenv("CASSANDRA_PASSWORD")
 
 CASSANDRA_TABLE = 'WeatherData'
 
 spark_host = f"spark://{spark_hostname}:{spark_port}"
 
-os.environ["PYSPARK_SUBMIT_ARGS"] = "--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.2,com.datastax.spark:spark-cassandra-connector_2.12:3.2.0 org.postgresql:postgresql:42.2.18 --conf spark.jars.packages=com.datastax.spark:spark-cassandra-connector_2.12:3.11.9"
-
-
+# Spark session configuration
 spark = SparkSession.builder \
     .appName("WeatherStreaming") \
+    .config("spark.cassandra.connection.host", "dataeng-cassandra") \
+    .config("spark.cassandra.auth.username", "cassandra") \
+    .config("spark.cassandra.auth.password", "cassandra") \
     .config("spark.cassandra.connection.protocolVersion", "4") \
+    .config('spark.jars.packages', "com.datastax.spark:spark-cassandra-connector_2.12:3.11.9,"
+                                   "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0") \
     .getOrCreate()
+
 
 kafka_schema = StructType([
     StructField("ID", StringType(), True),
@@ -73,13 +77,13 @@ def create_cassandra_connection():
             auth_provider=PlainTextAuthProvider(
                 username=CASSANDRA_USERNAME, password=CASSANDRA_PASSWORD
             ),
+            protocol_version=4
         )
         session = cluster.connect()
         return session
     except Exception as e:
         logging.error(f"Could not create Cassandra connection due to {e}")
         return None
-
 
 # Function to create keyspace in Cassandra
 def create_keyspace(session):
