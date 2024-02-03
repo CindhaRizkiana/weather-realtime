@@ -37,10 +37,9 @@ spark = SparkSession.builder \
     .config("spark.cassandra.auth.username", "cassandra") \
     .config("spark.cassandra.auth.password", "cassandra") \
     .config("spark.cassandra.connection.protocolVersion", "4") \
-    .config('spark.jars.packages', "com.datastax.spark:spark-cassandra-connector_2.12:3.11.9,"
+    .config('spark.jars.packages', "com.datastax.spark:spark-cassandra-connector-assembly_2.12:3.3.0,"
                                    "org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0") \
     .getOrCreate()
-
 
 kafka_schema = StructType([
     StructField("ID", StringType(), True),

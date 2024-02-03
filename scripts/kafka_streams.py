@@ -31,7 +31,6 @@ class WeatherDataGenerator(object):
             "Timestamp": datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'),
         }
 
-
 # Major cities in Taiwan
 taiwan_cities = ["Taipei", "New Taipei", "Taichung", "Tainan", "Kaohsiung", "Taoyuan", "Keelung"]
 
@@ -47,16 +46,19 @@ while True:
     ]
 
     for city_name in taiwan_cities:
-        weather_data = WeatherDataGenerator.get_fake_weather_data(city_name)
+        try:
+            weather_data = WeatherDataGenerator.get_fake_weather_data(city_name)
 
-        json_data = dict(zip(columns, [uuid.uuid4().__str__()] + list(weather_data.values())))
-        _payload = json.dumps(json_data).encode("utf-8")
+            json_data = dict(zip(columns, [uuid.uuid4().__str__()] + list(weather_data.values())))
+            payload = json.dumps(json_data).encode("utf-8")
 
-        print(_payload, flush=True)
-        print("=-" * 5, flush=True)
+            print(payload, flush=True)
+            print("=-" * 5, flush=True)
 
-        response = producer.send(topic=kafka_topic, value=_payload)
-        print(response.get())
-        print("=-" * 20, flush=True)
+            producer.send(topic=kafka_topic, value=payload)
+            print("Message sent successfully.")
+            print("=-" * 20, flush=True)
+        except Exception as e:
+            print(f"Error sending message: {e}")
 
     sleep(10)

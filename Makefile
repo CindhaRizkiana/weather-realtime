@@ -3,14 +3,14 @@ include .env
 help:
 	@echo "## docker-build			- Build Docker Images (amd64) including its inter-container network."
 	@echo "## docker-build-arm		- Build Docker Images (arm64) including its inter-container network."
-	@echo "## postgres			- Run a Postgres container  "
-	@echo "## spark			- Run a Spark cluster, rebuild the postgres container, then create the destination tables "
-	@echo "## jupyter			- Spinup jupyter notebook for testing and validation purposes."
-	@echo "## kafka			- Spinup kafka cluster (Kafka+Zookeeper)."
-	@echo "## datahub			- Spinup datahub instances."
-	@echo "## metabase			- Spinup metabase instance."
-	@echo "## cassandra		- Spinup Cassandra container."
-	@echo "## clean			- Cleanup all running containers related to the challenge."
+	@echo "## postgres				- Run a Postgres container  "
+	@echo "## spark					- Run a Spark cluster, rebuild the postgres container, then create the destination tables "
+	@echo "## jupyter				- Spinup jupyter notebook for testing and validation purposes."
+	@echo "## kafka					- Spinup kafka cluster (Kafka+Zookeeper)."
+	@echo "## datahub				- Spinup datahub instances."
+	@echo "## metabase				- Spinup metabase instance."
+	@echo "## cassandra				- Spinup Cassandra container."
+	@echo "## clean					- Cleanup all running containers related to the challenge."
 
 docker-build:
 	@echo '__________________________________________________________'
@@ -75,7 +75,6 @@ cassandra-create-keyspace:
 	@echo 'Waiting for Cassandra to initialize...'
 	@sleep 30  # Adjust the sleep duration as needed
 	@echo '==========================================================='
-
 
 spark-produce:
 	@echo '__________________________________________________________'
