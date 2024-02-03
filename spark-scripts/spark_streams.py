@@ -30,13 +30,13 @@ CASSANDRA_TABLE = 'WeatherData'
 
 spark_host = f"spark://{spark_hostname}:{spark_port}"
 
-os.environ["PYSPARK_SUBMIT_ARGS"] = "--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.2,com.datastax.spark:spark-cassandra-connector_2.12:3.0.3 org.postgresql:postgresql:42.2.18 --conf spark.jars.packages=com.datastax.spark:spark-cassandra-connector_2.12:3.11.9"
+os.environ["PYSPARK_SUBMIT_ARGS"] = "--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.2,com.datastax.spark:spark-cassandra-connector_2.12:3.11.9 org.postgresql:postgresql:42.2.18 --conf spark.jars.packages=com.datastax.spark:spark-cassandra-connector_2.12:3.11.9"
 
-sparkcontext = pyspark.SparkContext.getOrCreate(
-    conf=(pyspark.SparkConf().setAppName("WeatherStreaming").setMaster(spark_host))
-)
-sparkcontext.setLogLevel("WARN")
-spark = pyspark.sql.SparkSession(sparkcontext.getOrCreate())
+
+spark = SparkSession.builder \
+    .appName("WeatherStreaming") \
+    .config("spark.cassandra.connection.protocolVersion", "4") \
+    .getOrCreate()
 
 kafka_schema = StructType([
     StructField("ID", StringType(), True),
