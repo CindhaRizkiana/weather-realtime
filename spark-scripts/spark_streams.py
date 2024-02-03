@@ -6,12 +6,11 @@ from pyspark.sql.types import StructType, StructField, StringType, DoubleType, T
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, DoubleType, TimestampType
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from cassandra.cluster import Cluster
-
+from cassandra.auth import PlainTextAuthProvider
+import json
 
 dotenv_path = Path("/opt/app/.env")
 load_dotenv(dotenv_path=dotenv_path)
@@ -24,13 +23,14 @@ kafka_topic = os.getenv("KAFKA_TOPIC_NAME")
 CASSANDRA_HOST = os.getenv("CASSANDRA_HOST")
 CASSANDRA_PORT = os.getenv("CASSANDRA_PORT")
 CASSANDRA_KEYSPACE = os.getenv("CASSANDRA_KEYSPACE")
+CASSANDRA_USERNAME= os.getenv("CASSANDRA_USER")
+CASSANDRA_PASSWORD= os.getenv("CASSANDRA_PASSWORD")
+
 CASSANDRA_TABLE = 'WeatherData'
 
 spark_host = f"spark://{spark_hostname}:{spark_port}"
 
-os.environ[
-    "PYSPARK_SUBMIT_ARGS"
-] = "--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.2 org.postgresql:postgresql:42.2.18"
+os.environ["PYSPARK_SUBMIT_ARGS"] = "--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.2,com.datastax.spark:spark-cassandra-connector_2.12:3.0.3 org.postgresql:postgresql:42.2.18 --conf spark.jars.packages=com.datastax.spark:spark-cassandra-connector_2.12:3.11.9"
 
 sparkcontext = pyspark.SparkContext.getOrCreate(
     conf=(pyspark.SparkConf().setAppName("WeatherStreaming").setMaster(spark_host))
@@ -67,12 +67,19 @@ parsed_df = parsed_df.withColumn("Timestamp", col("Timestamp").cast(TimestampTyp
 # Function to create Cassandra connection
 def create_cassandra_connection():
     try:
-        cluster = Cluster([CASSANDRA_HOST])
+        cluster = Cluster(
+            [CASSANDRA_HOST],
+            port=int(CASSANDRA_PORT),
+            auth_provider=PlainTextAuthProvider(
+                username=CASSANDRA_USERNAME, password=CASSANDRA_PASSWORD
+            ),
+        )
         session = cluster.connect()
         return session
     except Exception as e:
         logging.error(f"Could not create Cassandra connection due to {e}")
         return None
+
 
 # Function to create keyspace in Cassandra
 def create_keyspace(session):

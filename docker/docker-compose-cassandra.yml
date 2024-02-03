@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   dataeng-cassandra:
-    image: docker.io/bitnami/cassandra:latest
+    image: docker.io/bitnami/cassandra:3.11.9
     container_name: ${CASSANDRA_CONTAINER_NAME}
     hostname: ${CASSANDRA_HOST}
     ports:
@@ -16,3 +16,5 @@ networks:
   default:
     name: dataeng-network
     external: true
+
+    
